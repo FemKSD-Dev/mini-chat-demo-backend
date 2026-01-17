@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: mini-chat-postgres
+    environment:
+      POSTGRES_USER: root_chat
+      POSTGRES_PASSWORD: root_chat
+      POSTGRES_DB: mini_chat_demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mini-chat-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root_chat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mini-chat-backend
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      DATABASE_URL: postgresql://root_chat:root_chat@db:5432/mini_chat_demo
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "4001:4001"
+    networks:
+      - mini-chat-network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    command: >
+      sh -c "
+        npx prisma migrate deploy &&
+        npx prisma db seed &&
+        npm start
+      "
+
+  # pgAdmin (Optional - for database management)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mini-chat-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - mini-chat-network
+    depends_on:
+      - db
+    profiles:
+      - tools
+
+networks:
+  mini-chat-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  pgadmin-data:

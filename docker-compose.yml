@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16
+    container_name: mini-chat-postgres
+    environment:
+      POSTGRES_USER: root_chat
+      POSTGRES_PASSWORD: root_chat
+      POSTGRES_DB: mini_chat_demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mini-chat-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mini-chat-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - mini-chat-network
+    depends_on:
+      - db
+
+networks:
+  mini-chat-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  pgadmin-data:

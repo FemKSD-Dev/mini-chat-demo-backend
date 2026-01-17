@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages     Message[]
+  participants ConversationParticipant[]
+
+  @@index([name])
+}
+
+model Conversation {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lastMessageAt DateTime?
+  lastMessageId Int?      @unique
+
+  participants ConversationParticipant[]
+  messages     Message[]
+  lastMessage  Message?                  @relation("LastMessage", fields: [lastMessageId], references: [id], onDelete: SetNull)
+
+  @@index([lastMessageAt])
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  userId         Int
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@index([conversationId])
+}
+
+model Message {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  senderId       Int
+  body           String
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Restrict)
+
+  lastForConversation Conversation? @relation("LastMessage")
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
