@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { execSync } from "node:child_process";
 import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -13,7 +13,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🔄 Resetting database...");
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.message.deleteMany();
     await tx.conversationParticipant.deleteMany();
     await tx.conversation.deleteMany();

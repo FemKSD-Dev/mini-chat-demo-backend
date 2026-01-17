@@ -64,16 +64,17 @@ export const deleteMessage = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const { id } = req.params;
     
     const messageIndex = messages.findIndex(msg => msg.id === id);
     
     if (messageIndex === -1) {
-      return res.status(404).json({
+      res.status(404).json({
         error: 'Message not found'
       });
+      return;
     }
 
     messages.splice(messageIndex, 1);
@@ -88,10 +89,10 @@ export const deleteMessage = async (
 };
 
 export const clearMessages = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     messages = [];
     messageIdCounter = 1;

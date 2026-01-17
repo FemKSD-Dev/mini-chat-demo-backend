@@ -46,8 +46,8 @@ async function findExistingOneToOneConversation(userA: number, userB: number) {
 
   // enforce exactly two participants and only these users
   for (const c of candidates) {
-    const ids = c.participants.map((p) => p.userId).sort((a, b) => a - b);
-    const target = [userA, userB].sort((a, b) => a - b);
+    const ids = c.participants.map((p: { userId: number }) => p.userId).sort((a: number, b: number) => a - b);
+    const target = [userA, userB].sort((a: number, b: number) => a - b);
     if (ids.length === 2 && ids[0] === target[0] && ids[1] === target[1]) return c.id;
   }
   return null;
@@ -87,10 +87,10 @@ conversationsRouter.get("/", async (req, res, next) => {
     const hasMore = items.length > q.limit;
     const page = hasMore ? items.slice(0, q.limit) : items;
 
-    const mapped = page.map((c) => {
+    const mapped = page.map((c: typeof items[number]) => {
       const other = c.participants
-        .map((p) => p.user)
-        .find((u) => u.id !== userId) ?? { id: userId, name: req.currentUser.name };
+        .map((p: typeof c.participants[number]) => p.user)
+        .find((u: { id: number; name: string }) => u.id !== userId) ?? { id: userId, name: req.currentUser.name };
 
       return {
         id: c.id,
@@ -149,7 +149,7 @@ conversationsRouter.post("/", async (req, res, next) => {
       });
       if (!convo) throw notFound("Conversation not found");
 
-      const otherUser = convo.participants.map((p) => p.user).find((u) => u.id !== userId)!;
+      const otherUser = convo.participants.map((p: typeof convo.participants[number]) => p.user).find((u: { id: number; name: string }) => u.id !== userId)!;
 
       return res.status(200).json({
         conversation: {
@@ -180,7 +180,7 @@ conversationsRouter.post("/", async (req, res, next) => {
       },
     });
 
-    const otherUser = created.participants.map((p) => p.user).find((u) => u.id !== userId)!;
+    const otherUser = created.participants.map((p: typeof created.participants[number]) => p.user).find((u: { id: number; name: string }) => u.id !== userId)!;
 
     return res.status(201).json({
       conversation: {
@@ -236,7 +236,7 @@ conversationsRouter.get("/:id/messages", async (req, res, next) => {
     const hasMore = messages.length > q.limit;
     const page = hasMore ? messages.slice(0, q.limit) : messages;
 
-    const mapped = page.map((m) => ({
+    const mapped = page.map((m: typeof messages[number]) => ({
       id: m.id,
       conversationId: m.conversationId,
       sender: m.sender,

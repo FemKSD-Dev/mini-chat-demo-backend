@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prisma";
 import { badRequest, forbidden, notFound } from "../error";
+import { Prisma } from "@prisma/client";
 
 export const messagesRouter = Router();
 
@@ -33,7 +34,7 @@ messagesRouter.post("/", async (req, res, next) => {
 
     await ensureMember(userId, conversationId);
 
-    const created = await prisma.$transaction(async (tx) => {
+    const created = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const msg = await tx.message.create({
         data: {
           conversationId,

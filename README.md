@@ -173,6 +173,34 @@ docker-compose -f docker-compose.full.yml down
 docker-compose -f docker-compose.full.yml down -v
 ```
 
+### วิธีที่ 3: Build Docker Image แยก
+
+หากต้องการ build Docker image เพื่อใช้งานแยกต่างหาก:
+
+#### 1. Build Image
+
+```bash
+docker build -t mini-chat-backend .
+```
+
+#### 2. Run Container
+
+```bash
+docker run -d \
+  -p 4001:4001 \
+  -e DATABASE_URL="postgresql://user:password@host:5432/dbname" \
+  -e PORT=4001 \
+  -e NODE_ENV=production \
+  -e CORS_ORIGIN=http://localhost:3000 \
+  --name mini-chat-backend \
+  mini-chat-backend
+```
+
+**หมายเหตุ:** 
+- Docker image จะใช้ dummy `DATABASE_URL` ตอน build เพื่อ generate Prisma Client
+- ต้องระบุ `DATABASE_URL` จริงตอน runtime ผ่าน environment variable
+- ต้องมี PostgreSQL database ที่พร้อมใช้งาน
+
 ---
 
 ### เริ่ม pgAdmin (Optional)
