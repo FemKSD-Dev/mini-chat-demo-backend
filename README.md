@@ -2,6 +2,14 @@
 
 Backend API สำหรับแอปพลิเคชันแชทแบบเรียลไทม์ที่พัฒนาด้วย Express.js, TypeScript, Prisma และ PostgreSQL
 
+## 🌐 Live Demo
+
+**Frontend Demo**: [https://mini-chat-demo-frontend.vercel.app/](https://mini-chat-demo-frontend.vercel.app/)
+
+Backend API นี้ให้บริการ Frontend demo ด้านบน คุณสามารถทดลองใช้งานผ่าน Frontend หรือเรียก API โดยตรง
+
+---
+
 ## 📋 สารบัญ
 
 - [คุณสมบัติ](#คุณสมบัติ)
